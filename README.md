@@ -9,7 +9,6 @@ The proof uses Tan’s eight-letter theorem. The replay independently verifies t
 Use Python 3.12 and a C++17 compiler available as `c++`. From this directory run
 
 ```sh
-sha256sum -c SHA256SUMS
 python -m venv .venv
 . .venv/bin/activate
 python -m pip install -r requirements.txt
@@ -22,6 +21,6 @@ The verifier checks the nine-letter result, matches the ten-letter witness again
 
 The eight certificate archives occupy 60.53 MiB. Each proof family has one file, including one for each of the four smaller profile dimensions. The nine- and ten-letter checks share a single certificate reader and RUP implementation. [Format and checker requirements](proofs/FORMAT.md).
 
-## Build the standalone archive
+## License
 
-Run `python build_release.py` to write `dist/permutation-supersequence-10.tar`. The builder verifies the manifest and packages the files in a fixed order. The extracted archive uses the same verification command as the checkout.
+Apache License 2.0. See [LICENSE](LICENSE).
