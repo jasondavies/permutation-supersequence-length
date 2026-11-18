@@ -10,8 +10,8 @@ A construction of length 83 was already known. The lower bound follows by exclud
 
 | Minimum frequency | Exclusion at length 82 |
 |---|---|
-| At most 4 | The pivot inequality excludes at most three copies. The four-copy argument reduces to 88 cuts, each excluded by two solvers. [Derivation](#at-most-four-copies), [replay and witness check](witness_and_four.py). |
-| 5 | Complementary cuts and frequency tests leave 1,669 ordering templates. Each has a refutation. |
+| At most 4 | The pivot inequality excludes at most three copies. Short outer cuts exclude four copies. [Derivation](#at-most-four-copies), [Lean proof](../../lean/Four.lean). |
+| 5 | Complementary cuts and frequency tests leave 922 ordering templates. Each has a refutation. |
 | 6 | After verifying 304 smaller-alphabet frequency exclusions, 1,372 endpoint patterns remain. Each has a refutation. |
 | 7 | Every end begins with a permutation. Nine-letter projections and two ten-letter refutations cover all 1,131 templates. |
 
@@ -35,13 +35,19 @@ A missing subsequence gives a clause. Follow its greedy embedding from the first
 
 For a pivot with $r$ copies, put $t=82-r$ and $h=t-66$. Each outer gap has length at most $h$. Replacing any internal gap by one permutation of the other nine letters gives a nine-letter universal word, so each internal gap has length at most $h+9$. Summing the two outer and $r-1$ internal gap bounds gives $r(25-r)\ge75$, excluding $r=1,2,3$. [Gap replacement argument](../nine/proof.md#a-lower-bound-of-65).
 
-For $r=4$, the projection has length 78 and each outer gap has at most 12 positions. If the opening gap misses a letter, the opposite side $Q_2$ needs at least 52 positions on the other eight. Otherwise at least six of the nine letters in the opening gap are singletons. Each pair of these six misses one of its two orders, so $Q_2$ must be universal on the complementary seven. In particular $Q_2$ is universal on every four of the six singletons. A universal word on four letters contains some letter at least four times, by the last-new-letter induction in the nine-letter proof. Applying this to the four least frequent of the six gives at least two letters with four or more copies in $Q_2$. Omitting those two gives $|Q_2|\ge f(7)+8=47$. By reversal $|P_3|\ge47$. Both sides of the central cut $(P_2,Q_3)$ therefore have length at most 31. Padding them to $(31,31)$ leaves 88 candidate count pairs. CaDiCaL and Glucose both exclude all 88. [Cut and witness checker](witness_and_four.py).
+**Short outer cuts.** Suppose $(P,Q)$ is a complementary cut on nine letters and $|P|\le12$. If $P$ misses a letter, $Q$ is universal on the other eight and has length at least 52. Otherwise choose six letters that occur just once in $P$. Their three-letter complement occupies at most six positions in $P$, so it misses an order since $f(3)=7$. Hence $Q$ is universal on the six selected letters and uses them at least 28 times. In any universal word on $k$ letters some letter occurs at least $k$ times. Indeed, deleting the prefix through the last new letter and erasing its remaining copies leaves a universal word on the other $k-1$ letters, each of which lost at least one copy.
+
+Write $u,v$ for the two largest of the six selected counts in $Q$, with $u\ge v$. Then $u\ge6$. The two letters miss an order in $P$, so $Q$ needs at least $f(7)=39$ positions on their complement. If $|Q|\le49$, then $u+v\le10$, $v\le4$, and all six occupy at most $u+v+4v\le26$ positions. This contradicts 28. Thus $|Q|\ge50$.
+
+For $r=4$, $t=78$ and the two outer gaps have at most 12 positions. The short-cut bound gives $|Q_2|,|P_3|\ge50$, hence $|P_2|,|Q_3|\le28$. Replace the gap between the second and third copies by one permutation of the nine old letters. The resulting nine-letter universal word has length at most $28+9+28=65$, contradicting $f(9)=66$. [Formal proof](../../lean/Four.lean).
 
 ## Cutting at the five occurrences
 
 Suppose x occurs exactly five times. Delete x to get a word of length 77 on the other nine symbols. Let Pᵢ and Qᵢ be the portions before and after the original occurrence i of x. Universality requires Q₁ and P₅ to be universal on all nine symbols. At every cut between consecutive x's and every subset S of the nine symbols, Pᵢ must be universal on S or Qᵢ₊₁ must be universal on its complement. Missing orders on the two sides could otherwise be concatenated with x to give a missing ten-letter permutation. In particular both outer gaps have length at most 11 because f(9)=66.
 
-The frequency test admits no cut with budgets (11,50). Each side of such a cut must contain all nine symbols, since a missing symbol would force the opposite side to have length at least f(8)=52. Padding to the two budgets preserves the cut condition. Consequently |Q₂| and |P₄| are at least 51. Thus |P₂| and |Q₄| are at most 26. [Count test and its sorting argument](../nine/proof.md), [cut enumeration](cut_catalog.cpp).
+For a first side of length at most 11, the opposite side has length at least 51. If a symbol is missing this follows from $f(8)=52$. Otherwise at least seven letters are singletons. Every six of these are universally covered on the opposite side, since their three-letter complement occupies at most five positions on the first side. Applying the multiplicity bound above to the six least frequent among the seven forces two of the seven to occur at least six times each. Their missing pair order forces 39 positions on the seven-letter complement, for a total of at least 51. Consequently |Q₂| and |P₄| are at least 51. Thus |P₂| and |Q₄| are at most 26. [Count test and its sorting argument](../nine/proof.md), [cut enumeration](cut_catalog.cpp).
+
+The length-11 bound is sharp for the cut condition alone. Take the left word `80123456788` and the right word `817562340835716428036574182356740814372568047135286`. Direct greedy matching gives 18 subsets on which the left is universal. For each of the other 494 subsets, the right is universal on its complement. [Subset signature checker](cut_solver.py).
 
 Reverse the word if necessary so that |Q₃|≤38. At padded budgets (26,38) there are 287 pairs of count vectors up to simultaneous relabeling that pass the frequency test. Exactly 22 admit orderings passing all complementary splits. For a smaller pair to be possible, adding any symbol on a side below its budget must again give a possible pair. Repeat this test downwards. The remaining dimensions and counts are
 
@@ -65,7 +71,7 @@ Each resulting template has seven consecutive blocks
 e    x    b    x    g    x    (q together with two more x's)
 ```
 
-Each block allows every ordering of its multiset. In particular the final two occurrences of x have arbitrary positions in the last block. Apply the recursive window tests below to the full word. Up to a common relabeling there are **1,669 surviving templates**. [Template generator](five_halves.cpp), [window tests](windows.hpp).
+Each block allows every ordering of its multiset. In particular the final two occurrences of x have arbitrary positions in the last block. Apply the recursive window tests below to the full word. For each required projection, use the count test from the six-copy branch with an empty list of excluded profiles. This checks the possible first and last new letters of nearly shortest projections, including the shared middle when their demands are disjoint. In particular, every triple in the opening has at most five positions, so the opposite side must be universal on every complementary six-set. Every pair of singletons in the opening also forces universality on its seven-letter complement. The stronger count tests reduce the 1,669 templates from the basic window test to **922 surviving templates**, up to common relabeling. [Template generator](five_halves.cpp), [window tests](windows.hpp).
 
 ## Window tests
 
@@ -79,7 +85,7 @@ Order the occurrence tokens in each block by Boolean comparisons, fixing the rel
 
 Require the prefix before the last x and suffix after the first x to cover all old symbols universally. For each consecutive pair of x tokens add the complementary-subset disjunction for every subset of the old alphabet. Every universal word supplies a satisfying assignment. Conversely, in a fixed order these conditions are sufficient. For a target A x B, the x's that can follow A form a suffix of the list of occurrences, and those that can precede B form a prefix. The outer conditions make both lists nonempty. If they do not overlap, a cut between adjacent copies witnesses the failure.
 
-All 1,669 ordering formulas are unsatisfiable. The checker regenerates the templates and the formulas, requires exact coverage of the cases, and checks 555,918 clause additions by unit propagation against the original clauses. [Ordering encoder](pivot_formula.cpp), [proof archive](five.rupcol.xz), [replay](replay_branch.py).
+All 922 ordering formulas are unsatisfiable. The checker regenerates the templates and the formulas, requires exact coverage of the cases, and checks 341,931 clause additions by unit propagation against the original clauses. [Ordering encoder](pivot_formula.cpp), [proof archive](five.rupcol.xz), [replay](replay_branch.py).
 
 ## Seven copies as the minimum
 
@@ -141,4 +147,4 @@ The 1,372 ten-letter refutations contain **5,741,008** verified clause additions
 
 ## Verifying the certificates
 
-Each family has one XZ-compressed CBOR sequence. The nine- and ten-letter certificates share the same encoding and propagation checker. [Wire format](../FORMAT.md). Each record identifies the case, the original clause numbers used, and the ordered list of clauses to derive. The checker regenerates the selected original clauses from the case. For each claimed clause it assumes the negation of every literal and requires unit propagation to reach a conflict before adding that clause. Every refutation finishes with the empty clause. The checker also regenerates the case lists to verify coverage. Across the five-, six- and seven-copy cases, including the smaller frequency proofs, it checks 4,049 refutations and 12,098,943 clause additions. [Certificate reader](../shared/certificates.py), [verifier](replay_branch.py), [replay instructions](../../README.md#reproduce-the-result).
+Each family has one XZ-compressed CBOR sequence. The nine- and ten-letter certificates share the same encoding and propagation checker. [Wire format](../FORMAT.md). Each record identifies the case, the original clause numbers used, and the ordered list of clauses to derive. The checker regenerates the selected original clauses from the case. For each claimed clause it assumes the negation of every literal and requires unit propagation to reach a conflict before adding that clause. Every refutation finishes with the empty clause. The checker also regenerates the case lists to verify coverage. Across the five-, six- and seven-copy cases, including the smaller frequency proofs, it checks 3,302 refutations and 11,884,956 clause additions. [Certificate reader](../shared/certificates.py), [verifier](replay_branch.py), [replay instructions](../../README.md#reproduce-the-result).

@@ -29,11 +29,15 @@ def missing_orders(word):
     return missing
 
 
-def replay(jobs):
+def check_witness():
     if len(WITNESS) != 83 or missing_orders(WITNESS):
         raise ValueError("invalid length-83 witness")
     print("Length-83 witness covers all 3,628,800 permutations.", flush=True)
 
+
+def replay(jobs):
+    """Independent SAT cross-check of the analytic four-copy exclusion."""
+    check_witness()
     with TemporaryDirectory() as work:
         query = Path(work) / "frequency"
         catalog = Path(work) / "catalog"

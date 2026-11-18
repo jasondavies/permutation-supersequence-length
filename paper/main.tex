@@ -1,0 +1,158 @@
+\documentclass[11pt]{article}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern,amsmath,amssymb,amsthm,booktabs,microtype}
+\usepackage[hmargin=1in,vmargin=0.9in]{geometry}
+\usepackage[hidelinks]{hyperref}
+\hypersetup{pdftitle={The shortest word containing every permutation of ten symbols has length 83},pdfauthor={Jason Davies}}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{observation}[theorem]{Observation}
+\newcommand{\cov}{\mathcal U}
+\newcommand{\repo}{\url{https://github.com/jasondavies/permutation-supersequence-length}}
+\title{The shortest word containing every permutation of ten symbols has length 83}
+\author{Jason Davies}
+\date{}
+\begin{document}
+\maketitle
+\begin{abstract}
+A word over a ten-symbol alphabet contains every permutation as a subsequence precisely when it meets a family of complementary prefix and suffix requirements at the occurrences of any chosen symbol. We use these requirements to prove that a word of length 82 cannot be universal. Combined with the known construction of length 83, this determines the ten-symbol minimum. The proof reduces the search to four possible minimum symbol frequencies. A counting argument excludes four copies. In the remaining cases, frequency tests enumerate candidate block multisets and propositional refutations exclude their possible orderings. The computation includes a reproduction of the previously known nine-symbol value 66.
+\end{abstract}
+
+\section{The extremal problem}
+Write $f(n)$ for the least length of a word over $[n]$ that contains each of the $n!$ permutations as a subsequence. An embedding uses strictly increasing positions and may skip letters. Interest in these words grew out of Karp's work on shortest-path algorithms \cite{newey,adleman}. Newey obtained the exact values through seven letters. Tan proved $f(8)=52$ \cite{tan}. The OEIS credits Vitaliy Garnashevich with computing $f(9)=66$ in 2025 \cite{oeis,garnashevich}. At ten letters, Z\u{a}linescu records an earlier length-83 example and gives a construction attaining $n^2-2n+3$ for all $n\ge10$ \cite{zalinescu}.
+
+\begin{theorem}\label{thm:main}
+The shortest word containing all permutations of a ten-symbol alphabet as subsequences has length $83$.
+\end{theorem}
+Here is an upper-bound witness, written on two lines to be concatenated.
+\begin{center}\ttfamily
+012345678901234567802934516708234519607821\par
+34506978231405678213904567823109456782301
+\end{center}
+Matching each requested digit at its earliest available position verifies all $3{,}628{,}800$ permutations. It suffices for the lower bound to exclude length 82, since appending positions preserves universality. The numerical inputs on smaller alphabets are
+\[
+(f(0),\ldots,f(9))=(0,1,3,7,12,19,28,39,52,66).
+\]
+The companion computation independently recovers the last entry using the preceding ones. Table~\ref{tab:cases} summarises the exclusion at length 82. The following sections describe how the case lists are obtained and what their refutations establish.
+
+\begin{table}[ht]
+\centering\small
+\begin{tabular}{cll}
+\toprule
+Minimum frequency & Cases retained & Final check\\
+\midrule
+4 & Two outer cuts & Gap replacement gives a contradiction\\
+5 & 922 block templates & 922 ordering refutations\\
+6 & 1,372 endpoint patterns & 1,372 ordering refutations\\
+7 & 1,131 endpoint templates & 229 projected and 2 joint refutations\\
+\bottomrule
+\end{tabular}
+\caption{The six-copy case also uses 304 smaller-alphabet frequency exclusions, proved with 777 auxiliary refutations.}\label{tab:cases}
+\end{table}
+
+\section{A cut at consecutive copies}
+Write $\cov(S,V)$ when $V$ contains every ordering of the set $S$. Choose a symbol $x$ with $r$ occurrences in a word $W$, and let $A$ be the alphabet with $x$ removed. Delete all copies of $x$. In the resulting word, let $P_i$ and $Q_i$ be the portions before and after the location of the $i$th copy. Thus $|P_i|+|Q_i|=t=|W|-r$.
+
+\begin{lemma}\label{lem:cut}
+For $r\ge1$, $W$ is universal if and only if $\cov(A,Q_1)$ and $\cov(A,P_r)$ hold and, for every $1\le i<r$ and $S\subseteq A$,
+\[
+                 \cov(S,P_i)\quad\text{or}\quad \cov(A\setminus S,Q_{i+1}).
+\]
+\end{lemma}
+\begin{proof}
+Requesting $x$ first or last gives the outer conditions. If the disjunction fails, choose a missing ordering $u$ of $S$ and a missing ordering $v$ of its complement. In $uxv$ the pivot must come later than copy $i$ and earlier than copy $i+1$.
+
+Conversely, for a given $uxv$, the copies of $x$ that can follow $u$ form a suffix of the occurrence list. Those that can precede $v$ form a prefix. The two outer conditions make each list nonempty. If they are disjoint, the last copy in the prefix and the next copy contradict the disjunction for $S$, the alphabet of $u$.
+\end{proof}
+For example, with $A=\{a,b,c,d\}$, suppose $P_i=ab$ and $Q_{i+1}=dc$. The split $\{a,b\}\mid\{c,d\}$ fails because $ba$ and $cd$ are missing. The single request $baxcd$ rules out this cut regardless of the letters between the two pivot copies.
+
+\begin{lemma}\label{lem:gap}
+Suppose $W$ is universal, $|A|=m$, and $F=f(m)$. Then
+\[
+                    F+m\ \le\ r(t-F+m).
+\]
+\end{lemma}
+\begin{proof}
+Write $h=t-F$. Each outer gap has length at most $h$, by the outer conditions. Across any internal gap, concatenate $P_i$, one arbitrary permutation of $A$, and $Q_{i+1}$. This word is universal on $A$. Indeed, embed the longest possible prefix of a requested ordering in $P_i$. If a letter remains, take its next letter from the inserted permutation. The prefix through that letter was missing from $P_i$, so Lemma~\ref{lem:cut} puts every ordering of the complementary letters in $Q_{i+1}$. Replacing the gap therefore leaves at least $F$ positions. Its original length was at most $h+m$. Summing gives $t\le 2h+(r-1)(h+m)$, as required.
+\end{proof}
+At length 82 we obtain $r(25-r)\ge75$ for every letter, which excludes $r\le3$. Choose a letter absent from the first nine positions. A permutation starting with that letter must read the other nine letters after those positions. At least 66 of the remaining 73 positions are therefore occupied by other letters. The minimum multiplicity lies in $\{4,5,6,7\}$.
+
+\section{Tests on counts and on block orders}\label{sec:tests}
+A capacity vector bounds the number of copies available for each letter. Insertion shows that realisability is monotone in each coordinate. We use a recursive necessary test $C$ for a capacity vector. Its empty-alphabet test succeeds. On a larger alphabet the entries must be positive and their sum must meet the available length bound. There are two additional tests.
+
+First, delete the prefix through the first appearance of a chosen letter. The remaining word, projected off that letter, must be universal on its complement. Charge one occurrence of each earlier letter in the order of first appearances and apply $C$ recursively. It suffices to test decreasing capacity order. To see this, interchange adjacent letters $a,b$ with $c_a<c_b$ occurring in that order. The deletion of $b$ improves when $a$ is no longer charged. In the new deletion of $a$, the remaining capacity of $b$ is at least the capacity of $a$ in the old deletion of $b$. Other deletions have the same charges. This exchange also gives monotonicity by induction, since an old admissible order remains available after a capacity increases.
+
+Second, on an alphabet of size $m$, tabulate a lower bound $H_m(p)$ on the opposite side of a cut with first-side length $p$. For vectors of lengths $p,q$, test $C$ on all complementary subsets as in Lemma~\ref{lem:cut}. In searching for a feasible pair of vectors with given sorted entries it suffices first to align them in increasing order. Indeed, fix the sorted left vector. Swap an inversion in the right vector on indices $i,j$ with $c_i\le c_j$ on the left. A right subset that could worsen contains $i$ and omits $j$. If its complementary left test fails, replacing $j$ there by $i$ gives a weaker left vector which also fails. The old right test on its complement thus supplies the needed right test after the swap. The algorithm discards dominated subset signatures and uses $H_m(p)$ capped at $f(m)$. For a pivot with $r$ copies and $t$ other positions, iterate upper bounds $u_1=t-f(m)$ and $u_{i+1}=t-H_m(u_i)$ while $u_i<f(m)$. The prefix at the last copy must have room for $f(m)$ letters. These smaller-dimensional tests are computed before testing a least frequent pivot in the next dimension.
+
+A cut catalogue enumerates both vector partitions at fixed budgets. After the preliminary sorted test, it enumerates all relative alignments up to simultaneous relabelling, and retests the actual complementary subsets. When both budgets are below $f(8)$, both vectors on nine letters must be positive. A missing symbol on one side would require the other to be universal on eight letters. Padding a feasible cut on either side preserves feasibility.
+
+A block template specifies a multiset at each of several successive positions in a block list. Every internal ordering is allowed. For a required alphabet inside a block interval, test its projected counts, then apply Lemma~\ref{lem:cut} at successive blocks containing each possible pivot. Each tested side includes its entire boundary block, which enlarges it. Recurse on the smaller alphabet. The test can also force an internal precedence $a<b$. If a requested prefix cannot finish by the preceding block containing $a$, and a disjoint requested suffix cannot start at or beyond the next block containing $b$, a request with those orders on either side of $ab$ must read both letters in the current block. A missing letter or a cycle among singly occurring letters excludes that template.
+
+For a surviving template, distinguish the individual occurrence tokens. Give differently labelled tokens in the same block Boolean order comparisons, fix each letter's copy order, and impose transitivity. Universality before a token on a nonempty set $S$ requires, for each $a\in S$, an earlier $a$ preceded by a prefix universal on $S\setminus\{a\}$. This is necessary because the latest available $a$ can follow every prefix that any earlier $a$ could follow. The reverse construction handles suffixes. Every universal ordering sets the comparisons, subset assertions, and witness variables consistently. A refutation of the generated clauses thus rules out the ordering. For an exact two-sided cut the encoder can also start with short subset orders, test a proposed token order by greedy matching, and add the comparisons forced by a missing order. Each learned constraint excludes an actual failure of the cut condition.
+
+\section{Exclusion by minimum multiplicity}
+\begin{lemma}\label{lem:short}
+Let $P,Q$ be a complementary cut on nine letters. If $|P|\le12$, then $|Q|\ge50$.
+\end{lemma}
+\begin{proof}
+If $P$ misses a letter, $Q$ must contain every order of the other eight, so $|Q|\ge52$. Otherwise at most three of the nine letters can occur more than once in $P$. Choose six that occur once and call their set $S$. The other three occupy at most six positions of $P$. Since $f(3)=7$, some order of those three is missing. Hence $Q$ is universal on $S$ and contains at least $f(6)=28$ positions from $S$.
+
+In any word universal on $k\ge1$ letters, some letter has frequency at least $k$. For $k=1$ this is immediate. For the induction step, delete the prefix through the last new letter and erase that letter from the tail. The tail remains universal on $k-1$ letters and each of those letters lost at least one occurrence. Applying this to $Q$ restricted to $S$, its largest count $u$ is at least six. Let $v$ be the second-largest count in $S$. The two corresponding letters are singletons in $P$, so one of their orders is missing there. Thus $Q$ also contains all permutations of their seven-letter complement. If $|Q|\le49$, then $u+v\le49-f(7)=10$ and $v\le4$. The six letters of $S$ together occupy at most $u+v+4v\le26$ positions, contradicting the required 28.
+\end{proof}
+
+\paragraph{Four copies.}
+Here $t=78$ and $|P_1|,|Q_4|\le12$. Lemma~\ref{lem:short} at the first cut gives $|Q_2|\ge50$, hence $|P_2|\le28$. At the reverse end it gives $|P_3|\ge50$, hence $|Q_3|\le28$. By the replacement argument in Lemma~\ref{lem:gap}, $P_2$ followed by a permutation of the nine old letters and then $Q_3$ is universal on those letters. Its length is at most $28+9+28=65$, contradicting $f(9)=66$.
+
+\paragraph{Five copies.}
+Now $t=77$, so the first and last gaps have length at most 11. An outer cut with first side of length at most 11 has opposite side of length at least 51. A missing letter gives 52 as before. Otherwise there are at least seven singletons. For any six of them, their three-letter complement occupies at most five positions on the short side. The opposite side must therefore be universal on every six of the seven. Apply the heavy-letter argument of Lemma~\ref{lem:short} to the six least frequent of the seven. At least two have six or more occurrences. Since their pair misses an order on the short side, the opposite side has at least $6+6+f(7)=51$ positions. Hence $|Q_2|,|P_4|\ge51$ and $|P_2|,|Q_4|\le26$.
+The cut bound 51 is sharp. Take $P=\texttt{80123456788}$ and
+\[
+Q=\texttt{817562340835716428036574182356740814372568047135286}.
+\]
+The word $P$ is universal on 18 subsets. For each of the other 494 subsets, greedy matching verifies that $Q$ is universal on its complement.
+ Reverse if necessary so that $|Q_3|\le38$. At $(26,38)$, 287 central count pairs pass the frequency tests and 22 admit actual cut orders. For any smaller pair, every one-letter padding towards the budgets must survive. Applying this condition successively leaves 22 pairs at $(26,38)$, three at $(26,37)$ and one at $(25,38)$.
+
+Write $p,q,l$ for the count vectors of $P_2,Q_3,P_3$. Pad the reversed cut $(Q_4,P_3)$ on its first side to 26. Since $|P_3|=77-|Q_3|$, the catalogues at $(26,39)$ and $(26,40)$ give the possibilities for $l$. Enumerate their relative labellings, retaining $g=l-p\ge0$. At the outer cut match the counts of $Q_2$, namely $g+q$, against the catalogues at $(11,51)$ or $(11,52)$, and allow shorter first sides by the padding rule. Positivity at the latter budgets deserves attention. If $P_1$ missed a letter, $Q_2$ would need all orders on the other eight and a copy of the missing letter, requiring at least 53 positions. Write $e$ for a surviving first-gap vector. The seven blocks are
+\[
+             e,\quad x,\quad p-e,\quad x,\quad g,\quad x,\quad q+2x ,
+\]
+where the last block allows the two remaining pivots in any positions. Nonnegativity, the universal projected suffix at the first pivot, and the basic interval tests leave 1,669 templates. Each triple in the opening occupies at most five positions, so $Q_2$ must be universal on every complementary six-set. A pair of singletons in the opening likewise forces universality on its seven-letter complement. Apply the two-ended count test described in the six-copy case to the required interval projections, starting with an empty list of excluded profiles. This leaves 922 templates. Each has an ordering refutation.
+
+\paragraph{Seven copies.}
+Let $x$ be the last new letter. Both the nine letters before its first occurrence and the 66 old letters required afterwards attain their length bounds. Thus the opening ten positions form a permutation ending in $x$, and $x$ occurs seven times. Delete the opening and all later copies of $x$. In the resulting universal word of length 66 on nine letters, every letter occurs at least six times. Its last new letter $y$ occurs at most $66-8-52=6$ times. Equality gives another opening permutation on this projection. Reading from the other end yields corresponding roles $z,u$. Roles at opposite ends can coincide.
+
+The deletion and eight-subset tests leave 26 total count profiles. Enumerate assignments of the distinguished letters, allowing coincidences across ends, and split the extra pivot copies among the endpoint blocks. The interval tests leave 1,131 templates. Each implies a nine-letter requirement at either end. After canonical relabelling there are 297 distinct projected requirements. Refuting 229 covers all but two templates. For those two, impose the requirements from both ends in the joint ten-letter order. When the prescribed demands are disjoint, every order of the remaining alphabet must fit between them. The two joint formulas are unsatisfiable.
+
+\paragraph{Six copies.}
+The last new letter at either end occurs six or seven times. Before its first occurrence at most $82-6-66=10$ old letters can occur. Thus an opening through the last new letter has ten or eleven positions, with at most one repeated old letter. Enumerate both endpoint multisets. The last new letter alone, or two singleton letters in their missing order, force a universal complementary alphabet in the tail. The analogous right demands force prefix universality. A disjoint pair of left and right demands forces universality in the shared middle. Of 507 total profiles passing the deletion test, 299 give 3,082 endpoint patterns after these tests.
+
+A stronger count test uses a library of 304 excluded capacity vectors. For a vector on $k$ letters, enumerate both last new letters and the counts used through their first occurrences. For a pivot of frequency $r$ at total length $L$, the opening can contain at most $L-r-(k-1)-f(k-1)$ old letters beyond their mandatory first copies. Test the resulting tail, reversed tail and common middle. Distinct last new letters give disjoint end blocks, since universality requires the left one to appear before the right one somewhere. A common last new letter occurring at least twice also gives disjoint blocks. For a single common occurrence the two tails must separately be universal on the other letters. The library is verified in increasing alphabet size. Each profile may use only already established exclusions on strictly smaller alphabets. Within an alphabet, excluding a vector rules out all componentwise smaller vectors by insertion.
+\[
+\begin{array}{c|rrrr|r}
+k&6&7&8&9&\text{total}\\ \hline
+\text{excluded profiles}&15&61&102&126&304\\
+\text{ordering refutations}&66&360&329&22&777
+\end{array}
+\]
+This leaves 1,372 ten-letter endpoint patterns. Each describes five blocks, namely the opening before its last new letter, that letter, the unrestricted middle, the last new letter from the reverse end, and the closing remainder.
+
+For these larger formulas the archive gives trial words from which the verifier regenerates necessary clauses. Three types of evidence are worth distinguishing. A failed greedy embedding retains the comparisons that made each skipped occurrence too early. Keeping those comparisons keeps the requested permutation missing. A failed complementary cut gives two infeasible count vectors. Enlarge each while it remains infeasible. A satisfying order must move some ranked copy across its pivot to exceed a resulting capacity. Finally, prescribe disjoint orders at the two ends of a required region. Their greedy endpoints bound the interval available for its complementary alphabet. If that interval has insufficient capacity, either an endpoint comparison or a comparison keeping enough copies outside the interval must change. Each disjunction is necessary for universality. The encoder also tests the possible first and last appearances in required regions with small slack. Discarding redundant clauses only enlarges the set of assignments. Every one of the 1,372 resulting conjunctions has a refutation. This concludes the proof of Theorem~\ref{thm:main}.
+
+\section{Verification and scope}
+The companion contains the enumerators, formulas, certificates, and detailed derivations \cite{companion}. The principal replay runs with Python 3.12, a C++17 compiler, and the pinned dependencies, using \texttt{python verify.py --jobs 4}. It checks the nine-letter witness and 118 nine-letter refutations separately. At ten letters, CaDiCaL and Glucose independently decide the five-copy central cuts. The default replay uses the outer-cut inequalities proved above. Accepted cut orders are tested directly on all complementary subsets. The five-, six- and seven-copy ordering archives together verify 3,302 refutations and 11,884,956 clause additions, including the 777 smaller-dimensional ordering cases. Each addition is checked by assuming its negation and demanding a unit-propagation conflict before adjoining it. Each trace ends in the empty clause. Coverage is checked against regenerated case lists.
+
+The Lean 4 companion proves the necessary direction of Lemma~\ref{lem:cut}, the gap replacement, and the frequency split with $f(9)\ge66$ as an explicit hypothesis. It also proves Lemma~\ref{lem:short}, its length-11 strengthening, and the four-copy exclusion directly, with the lower bounds for alphabet sizes $2,3,6,7,8,9$ as hypotheses. In particular the inference from a universal word of length 82 to minimum frequency in $\{5,6,7\}$ has a kernel-checked proof. As a separate cross-check, the original four-copy search padded both central sides to 31 and enumerated 88 count pairs. Supplementary certificates give Lean proofs of contradiction for their regenerated propositional cores. The five-, six- and seven-copy exclusions use the computational replay described above.
+
+\paragraph{Use of AI.}
+OpenAI Codex assisted with the mathematical arguments, implementation, certificate verification, Lean development and preparation of this manuscript.
+
+\begin{thebibliography}{9}
+\bibitem{newey} M. Newey, \emph{Notes on a problem involving permutations as subsequences}, Stanford Artificial Intelligence Laboratory, Memo AIM-190, 1973.
+\bibitem{adleman} L. Adleman, Short permutation strings, \emph{Discrete Mathematics} \textbf{10} (1974), 197--200.
+\bibitem{zalinescu} E. Z\u{a}linescu, Shorter strings containing all $k$-element permutations, \emph{Information Processing Letters} \textbf{111} (2011), 605--608. \href{https://doi.org/10.1016/j.ipl.2011.03.018}{doi:10.1016/j.ipl.2011.03.018}.
+\bibitem{tan} O. Tan, Conjecture on supersequence lower bound related to Connell sequence, \href{https://arxiv.org/abs/2501.11386}{arXiv:2501.11386} (2025).
+\bibitem{oeis} OEIS Foundation Inc., \emph{The On-Line Encyclopedia of Integer Sequences}, \href{https://oeis.org/A062714}{A062714}.
+\bibitem{garnashevich} V. Garnashevich, \emph{Solver for OEIS A136094}, \url{https://github.com/vsg/A136094}.
+\bibitem{companion} J. Davies, \emph{Permutation supersequence length}, software, proof certificates and Lean source. \repo. Git revision \texttt{135f27f} contains the earlier computational replay and its archives.
+\end{thebibliography}
+\end{document}

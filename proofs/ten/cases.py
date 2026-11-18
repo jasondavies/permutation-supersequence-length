@@ -94,7 +94,8 @@ def generate_templates(work, jobs):
     def cuts(p, q, mode="free"):
         return read_table(check_output([catalog, str(p), str(q), mode], text=True))
 
-    require(cuts(11, 50), [], "impossible outer cut")
+    # The outer-cut lemma gives the opposite side at least 51 positions
+    # when the opening has length at most 11 (lean/Four.lean, outerCutEleven).
     pairs = cuts(26, 38)
     require(len(pairs), 287, "central count pairs")
     with ProcessPoolExecutor(
@@ -125,7 +126,7 @@ def generate_templates(work, jobs):
     with ProcessPoolExecutor(max_workers=jobs) as pool:
         parts = pool.map(half_case, args)
         result = sorted({t for part in parts for t in part})
-    require(len(result), 1669, "five-copy templates")
+    require(len(result), 922, "five-copy templates")
     return result
 
 

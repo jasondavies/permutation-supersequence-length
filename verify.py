@@ -25,13 +25,15 @@ def main():
         parser.error("--jobs must be positive")
     if args.branch in ("all", "nine"):
         check_nine.replay()
-    if args.branch in ("all", "four"):
+    if args.branch == "all":
+        witness_and_four.check_witness()
+    elif args.branch == "four":
         witness_and_four.replay(args.jobs)
     for branch in ("five", "seven", "six"):
         if args.branch in ("all", branch):
             replay_branch.replay(branch, args.jobs)
     if args.branch == "all":
-        print("Both bounds verified. The ten-letter minimum is 83.")
+        print("All computational cases verified. Together with the four-copy lemma, the ten-letter minimum is 83.")
 
 
 if __name__ == "__main__":

@@ -11,6 +11,7 @@ Each `*.rupcol.xz` file contains one proof family. Decompress XZ, consume the ei
 | Archive | Header | Case |
 | --- | --- | --- |
 | `nine` | `[case, count]` | 48 counts in letter-major order, six gaps for each of eight letters. |
+| `four` (optional) | `[case, chains, count]` | The nine left counts followed by the nine right counts. Each chain contributes one necessary missing-order clause after the static clauses. The replay checks all chain thresholds, distinct symbols and mask membership. [Four-copy checker](../lean/check_four.py). |
 | `five` | `[case, count]` | 36 counts in letter-major order, four blocks for each of nine letters. |
 | `seven` | `[case, count]` | A block-and-region request as described below. |
 | `profile-6` through `profile-9` | `[case, null, count]` | A block-and-region request for the profile alphabet. |
@@ -29,4 +30,4 @@ For example, variable gaps `[3, 5]` give IDs `[3, 8]`. Literal codes `[1, 2]` wi
 
 **Replay.** Regenerate the case formula, check its original clause count, and initialize a fresh clause database with the selected original clauses. For every claim, reject a zero literal or complementary pair. Temporarily assume the negation of every literal in the claim. Unit propagation must reach a contradiction. Discharge the assumptions and add the claim to the database. The last claim proves the empty clause. There are no stored antecedent hints. The certificate verifier and the enumerators have distinct roles. The enumerators must also establish that the accepted cases cover the whole branch, including shared projections in the seven-copy branch. [Shared reader and propagation checker](shared/certificates.py), [ten-letter coverage rules](ten/replay_branch.py).
 
-**Trimming and clause selection.** Before dropping the source hints, we followed their antecedents backward from each final empty clause. Every one of the 12,102,201 additions in the 4,167 refutations was reachable. The archive retains selected original clause IDs so reviewers can load a smaller starting formula. Across the 1,669 five-copy cases this reduces the number of original clauses loaded for propagation from 1,012,144,474 to 1,654,575.
+**Trimming and clause selection.** Before dropping the source hints, we followed their antecedents backward from each final empty clause. Every one of the 11,888,214 additions in the 3,420 nine-, five-, six- and seven-branch refutations was reachable. The archive retains selected original clause IDs so reviewers can load a smaller starting formula. Across the 922 five-copy cases this reduces the number of original clauses loaded for propagation from 557,696,278 to 1,035,549.

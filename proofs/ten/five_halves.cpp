@@ -1,6 +1,7 @@
 // Read a compatible (P2,Q3) cut at length 82 and enumerate its possible
 // opening gap E, second gap B and third gap G. Leave all of Q3 unordered.
 #include "windows.hpp"
+#include "profile_capacity.hpp"
 #include <fstream>
 #include <iostream>
 #include <map>
@@ -82,7 +83,9 @@ void align(const Vector& right, const Index::value_type& entry, Visitor visit) {
 
 int main(int argc,char** argv) {
     if (argc!=5) return 2;
-    FrequencyBounds bounds;
+    // Test both ends of nearly shortest projections. The five-copy branch
+    // uses the elementary count bounds alone, with an empty profile library.
+    length82::ProfileCapacity bounds;
     Index outer[]={index_by_right(argv[1]),index_by_right(argv[2])};
     Index opposite[]={index_by_right(argv[3]),index_by_right(argv[4])};
     Vector p,q;
@@ -110,7 +113,7 @@ int main(int argc,char** argv) {
                     const Vector b=subtract(p,e), tail=subtract(total,e);
                     if (*std::min_element(b.begin(),b.end())<0 ||
                         !bounds.passes(Counts(tail.begin(),tail.end()))) return;
-                    Windows windows(bounds,{block(e),pivot(),block(b),pivot(),block(g),pivot(),block(q,2)});
+                    BasicWindows<length82::ProfileCapacity> windows(bounds,{block(e),pivot(),block(b),pivot(),block(g),pivot(),block(q,2)});
                     if (!windows.universal()) return;
                     Half cols;
                     for (int i=0;i<9;++i) cols[i]={e[i],b[i],g[i],q[i]};

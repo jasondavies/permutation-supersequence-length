@@ -1,0 +1,7 @@
+name = "permutationSupersequence"
+version = "0.1.0"
+defaultTargets = ["Supersequence"]
+
+[[lean_lib]]
+name = "Supersequence"
+roots = ["Frequency", "Four"]
