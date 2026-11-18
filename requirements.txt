@@ -1,0 +1,3 @@
+python-sat==1.9.dev15
+numpy==2.5.1
+cbor2==6.1.4
