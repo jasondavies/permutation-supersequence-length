@@ -1,14 +1,26 @@
-# The shortest common supersequence of all permutations of ten symbols has length 83
+# The shortest word containing every permutation of ten symbols as a subsequence has length 83
 
-A word of length 83 contains all 3,628,800 permutations as subsequences. The computer-assisted lower bound excludes length 82 by exhausting the possible frequencies of a least frequent symbol. Padding rules out every shorter length as well. A length-83 construction was already known. [Proof and witness](proofs/ten/proof.md), [Zălinescu’s construction and attribution](https://doi.org/10.1016/j.ipl.2011.03.018).
+A word is *universal* if it contains every permutation of its alphabet as a subsequence: the letters must appear in order, but gaps are allowed. This repository proves that the shortest universal word on ten symbols has length 83. Here is one:
 
-The proof uses Tan’s eight-letter theorem. The replay independently verifies the nine-letter value 66 previously computed by Vitaliy Garnashevich. [Tan’s theorem](https://arxiv.org/abs/2501.11386), [OEIS attribution](https://oeis.org/A062714/internal), [nine-letter proof](proofs/nine/proof.md).
+```text
+01234567890123456780293451670823451960782134506978231405678213904567823109456782301
+```
 
-The [manuscript](paper/permutation-supersequence-length.pdf) gives a counting proof that a length-82 universal word must use each symbol at least five times. The [Lean companion](lean/README.md) verifies this reduction. The computational proof covers the remaining minimum frequencies 5, 6 and 7. [LaTeX source](paper/permutation-supersequence-length.tex).
+A length-83 construction was already known ([Zălinescu, 2011](https://doi.org/10.1016/j.ipl.2011.03.018)). The new result is the matching lower bound: no word of length 82 is universal. Appending letters preserves universality, so no shorter word is universal either. This settles the tenth term of [OEIS A062714](https://oeis.org/A062714).
+
+The proof takes Tan’s theorem f(8) = 52 as an input ([arXiv:2501.11386](https://arxiv.org/abs/2501.11386)). It re-verifies the nine-symbol value f(9) = 66, previously computed by Vitaliy Garnashevich.
+
+## The proof
+
+- **Paper:** [PDF](paper/permutation-supersequence-length.pdf), with its [LaTeX source](paper/permutation-supersequence-length.tex).
+- **Analytic reduction:** a counting argument shows that a least frequent symbol in a universal word of length 82 occurs five, six or seven times. The [Lean development](lean/README.md) checks this reduction.
+- **Computational cases:** for five, six and seven copies, enumerators generate every remaining case. Then 3,302 refutations exclude them all, and each of their 11,884,956 clause additions is checked by unit propagation. See the [ten-letter proof](proofs/ten/proof.md), the [nine-letter proof](proofs/nine/proof.md) and the [certificate format](proofs/FORMAT.md).
 
 ## Reproduce the result
 
-Use Python 3.12 and a C++17 compiler available as `c++`. From this directory run
+### Computational replay
+
+You need Python 3.12 and a C++17 compiler available as `c++`. From the repository root, run
 
 ```sh
 python -m venv .venv
@@ -17,11 +29,32 @@ python -m pip install -r requirements.txt
 python verify.py --jobs 4
 ```
 
-The worker count applies to all parallel ten-letter checks. PySAT publishes its versions on PyPI as prereleases. The requirements pin the version tested with CaDiCaL 1.9.5, Glucose 4, and MiniSat 2.2. Pip accepts the exact version in the requirements file without an extra flag. [PyPI version index](https://pypi.org/simple/python-sat/), [tested release and wheels](https://pypi.org/project/python-sat/1.9.dev15/).
+This checks the nine-letter result, tests the 83-letter witness against all 3,628,800 permutations, and replays the five-, six- and seven-copy cases. `--jobs` sets the number of worker processes. To replay a single case, run e.g. `python verify.py six --jobs 4`. The cases are `nine`, `five`, `six` and `seven`.
 
-The default replay checks the nine-letter result, tests the ten-letter witness against every permutation, and runs the five-, six- and seven-copy branches. These replay 3,302 refutations, including 777 used to establish smaller frequency bounds. CaDiCaL and Glucose independently decide the five-copy central cuts. To run one branch, use e.g. `python verify.py six --jobs 4`. To verify the analytic reduction, run `lake build` from `lean/`.
+The pinned `python-sat==1.9.dev15` is a PyPI prerelease. Pip installs an exact pinned version without extra flags. This is the tested version, which bundles CaDiCaL 1.9.5, Glucose 4 and MiniSat 2.2.
 
-The eight archives used by the default replay occupy 59.43 MiB. An optional four-copy cross-check is available with `python verify.py four --jobs 4`. It tests the witness and excludes all 88 central cuts with both SAT solvers. A separate 70,520-byte certificate file supports Lean replay of these 88 propositional refutations. [Certificate format](proofs/FORMAT.md), [Lean replay](lean/README.md).
+### Lean
+
+Install Lean with [elan](https://github.com/leanprover/elan), then run `lake build` in `lean/`. The toolchain is pinned to Lean 4.35.0, and the build uses only Lean’s standard library.
+
+### Optional four-copy cross-check
+
+The Lean proof of the four-copy case does not depend on any search. An earlier computational route also exists: `python verify.py four --jobs 4` excludes the 88 central cuts of a four-copy search with both SAT solvers, and `python lean/check_four.py --jobs 4` replays the same refutations as Lean theorems. See the [Lean README](lean/README.md).
+
+## Repository layout
+
+| Path | Contents |
+| --- | --- |
+| `paper/` | The manuscript |
+| `proofs/nine/` | The nine-letter proof, enumerator and certificates |
+| `proofs/ten/` | The ten-letter proof, enumerators, encoders and certificates |
+| `proofs/shared/` | Certificate reader and unit-propagation checker |
+| `lean/` | Lean formalisation of the analytic reduction |
+| `verify.py` | Entry point for the computational replay |
+
+## Use of AI
+
+The proof, code, Lean development and manuscript were produced by GPT-6.2-Astra (OpenAI), used through Codex. Claude Opus 5.5 (Anthropic) reviewed and revised the manuscript. See the declaration at the end of the paper.
 
 ## License
 
