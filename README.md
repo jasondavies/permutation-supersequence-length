@@ -4,7 +4,7 @@ A word of length 83 contains all 3,628,800 permutations as subsequences. The com
 
 The proof uses Tan’s eight-letter theorem. The replay independently verifies the nine-letter value 66 previously computed by Vitaliy Garnashevich. [Tan’s theorem](https://arxiv.org/abs/2501.11386), [OEIS attribution](https://oeis.org/A062714/internal), [nine-letter proof](proofs/nine/proof.md).
 
-The [manuscript](paper/main.pdf) gives a counting proof that a length-82 universal word must use each symbol at least five times. The [Lean companion](lean/README.md) verifies this reduction. The computational proof covers the remaining minimum frequencies 5, 6 and 7. [LaTeX source](paper/main.tex).
+The [manuscript](paper/permutation-supersequence-length.pdf) gives a counting proof that a length-82 universal word must use each symbol at least five times. The [Lean companion](lean/README.md) verifies this reduction. The computational proof covers the remaining minimum frequencies 5, 6 and 7. [LaTeX source](paper/permutation-supersequence-length.tex).
 
 ## Reproduce the result
 
