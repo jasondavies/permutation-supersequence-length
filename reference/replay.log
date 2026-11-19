@@ -1,0 +1,86 @@
+[0:00:00] nine: starting
+[0:00:00] nine: length-66 witness covers all 362,880 permutations
+233 profiles, 757 labeled count arrays, 118 templates
+[0:01:52] nine: 118 templates excluded, 3,258 RUP additions checked
+[0:01:53] ten: length-83 witness covers all 3,628,800 permutations
+[0:01:53] five: starting
+[0:02:05] five: 287 central count pairs; replaying cut refutations
+[0:02:26] five: 265 cuts refuted with 33,822 additions; 22 kept
+[0:02:26] five: building the outer and reverse cut catalogues
+[0:02:58] five: generating templates from 26 central cuts
+[0:03:40] five: central cuts expanded: 1/26
+[0:06:07] five: central cuts expanded: 2/26
+[0:07:39] five: central cuts expanded: 15/26
+[0:08:43] five: central cuts expanded: 20/26
+[0:09:20] five: central cuts expanded: 24/26
+[0:10:02] five: central cuts expanded: 26/26
+[0:10:02] five: 922 templates generated
+[0:10:32] five: five refutations: 596/922
+[0:10:42] five: verified 922 final refutations, 341,931 ordering-formula additions including dependencies
+[0:10:42] seven: starting
+26 count profiles, 1131 seven-copy templates
+[0:11:59] seven: seven refutations: 180
+[0:12:50] seven: seven refutations: 188
+[0:13:25] seven: seven refutations: 231
+[0:13:25] seven: verified 231 final refutations, 2,055,500 ordering-formula additions including dependencies
+[0:13:25] six: starting
+[0:13:47] six: 6-letter profiles: 66 refutations, 13,599 additions
+[0:14:05] six: 7-letter profiles: 360 refutations, 148,546 additions
+[0:14:46] profile: profile-8 refutations: 60/329
+[0:15:18] profile: profile-8 refutations: 148/329
+[0:15:47] six: 8-letter profiles: 329 refutations, 3,144,693 additions
+[0:16:18] six: 9-letter profiles: 22 refutations, 439,679 additions
+148 entry profiles, 109 surviving profiles, 1372 endpoint patterns
+[0:17:04] six: six refutations: 168/1,372
+[0:17:35] six: six refutations: 360/1,372
+[0:18:06] six: six refutations: 556/1,372
+[0:18:36] six: six refutations: 692/1,372
+[0:19:08] six: six refutations: 836/1,372
+[0:19:41] six: six refutations: 920/1,372
+[0:20:11] six: six refutations: 1,004/1,372
+[0:20:41] six: six refutations: 1,112/1,372
+[0:21:11] six: six refutations: 1,216/1,372
+[0:21:42] six: six refutations: 1,288/1,372
+[0:21:57] six: verified 1,372 final refutations, 9,487,525 ordering-formula additions including dependencies
+{
+  "branch": "all",
+  "jobs": 4,
+  "elapsed": "0:21:57",
+  "environment": {
+    "commit": "e256bf5b87cbc63b16ba4c1b0a3e6f8c8d530849",
+    "uncommitted_changes": false,
+    "python": "3.12.3",
+    "platform": "Linux-7.0.0-38-generic-x86_64-with-glibc2.39",
+    "compiler": "c++ (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0",
+    "packages": {
+      "python-sat": "1.9.dev15",
+      "numpy": "2.5.1",
+      "cbor2": "6.1.4"
+    }
+  },
+  "results": {
+    "nine": {
+      "refutations": 118,
+      "additions": 3258
+    },
+    "witness": {
+      "permutations": 3628800
+    },
+    "five": {
+      "refutations": 922,
+      "additions": 341931,
+      "cut_refutations": 265,
+      "cut_additions": 33822
+    },
+    "seven": {
+      "refutations": 231,
+      "additions": 2055500
+    },
+    "six": {
+      "refutations": 1372,
+      "additions": 9487525,
+      "auxiliary_refutations": 777
+    }
+  }
+}
+[0:21:57] All computational cases verified. Together with the Lean-checked four-copy lemma, the ten-letter minimum is 83.

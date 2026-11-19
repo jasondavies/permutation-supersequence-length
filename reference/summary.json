@@ -1,0 +1,41 @@
+{
+  "branch": "all",
+  "jobs": 4,
+  "elapsed": "0:21:57",
+  "environment": {
+    "commit": "e256bf5b87cbc63b16ba4c1b0a3e6f8c8d530849",
+    "uncommitted_changes": false,
+    "python": "3.12.3",
+    "platform": "Linux-7.0.0-38-generic-x86_64-with-glibc2.39",
+    "compiler": "c++ (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0",
+    "packages": {
+      "python-sat": "1.9.dev15",
+      "numpy": "2.5.1",
+      "cbor2": "6.1.4"
+    }
+  },
+  "results": {
+    "nine": {
+      "refutations": 118,
+      "additions": 3258
+    },
+    "witness": {
+      "permutations": 3628800
+    },
+    "five": {
+      "refutations": 922,
+      "additions": 341931,
+      "cut_refutations": 265,
+      "cut_additions": 33822
+    },
+    "seven": {
+      "refutations": 231,
+      "additions": 2055500
+    },
+    "six": {
+      "refutations": 1372,
+      "additions": 9487525,
+      "auxiliary_refutations": 777
+    }
+  }
+}

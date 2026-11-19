@@ -33,6 +33,8 @@ This checks the nine-letter result, tests the 83-letter witness against all 3,62
 
 The pinned `python-sat==1.9.dev15` is a PyPI prerelease. Pip installs an exact pinned version without extra flags. This is the tested version, which bundles CaDiCaL 1.9.5, Glucose 4 and MiniSat 2.2.
 
+A [reference run](reference/replay.log) of commit `e256bf5` completed in 22 minutes with four workers, using Python 3.12.3, GCC 13.3.0 and the pinned packages. Its [summary](reference/summary.json) records the environment and every verified count. The nine-letter replay takes about two minutes, the five-copy branch nine, the seven-copy branch three and the six-copy branch nine.
+
 ### Lean
 
 Install Lean with [elan](https://github.com/leanprover/elan), then run `lake build` in `lean/`. The toolchain is pinned to Lean 4.35.0, and the build uses only Lean’s standard library.
@@ -55,6 +57,7 @@ Install Lean with [elan](https://github.com/leanprover/elan), then run `lake bui
 | `proofs/shared/` | Certificate reader, unit-propagation checker and progress output |
 | `lean/` | Lean formalisation of the analytic reduction, and Lean replay of the cut refutations |
 | `tests/` | Regression tests |
+| `reference/` | Log and JSON summary of a complete replay |
 | `verify.py` | Entry point for the computational replay |
 
 ## Use of AI
