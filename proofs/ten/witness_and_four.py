@@ -6,6 +6,7 @@ from pathlib import Path
 from subprocess import check_call, check_output
 from tempfile import TemporaryDirectory
 
+from proofs.shared.progress import log
 from .cut_solver import decide, initialize
 
 HERE = Path(__file__).resolve().parent
@@ -32,7 +33,7 @@ def missing_orders(word):
 def check_witness():
     if len(WITNESS) != 83 or missing_orders(WITNESS):
         raise ValueError("invalid length-83 witness")
-    print("Length-83 witness covers all 3,628,800 permutations.", flush=True)
+    log("ten: length-83 witness covers all 3,628,800 permutations")
 
 
 def replay(jobs):

@@ -4,7 +4,8 @@ from concurrent.futures import ProcessPoolExecutor
 from pathlib import Path
 from subprocess import check_call, check_output
 
-from .cut_solver import decide, initialize
+from proofs.shared.progress import Progress, log
+from .cut_certificates import replay_cuts
 
 HERE = Path(__file__).resolve().parent
 
@@ -98,20 +99,19 @@ def generate_templates(work, jobs):
     # when the opening has length at most 11 (lean/Four.lean, outerCutEleven).
     pairs = cuts(26, 38)
     require(len(pairs), 287, "central count pairs")
-    with ProcessPoolExecutor(
-        max_workers=jobs, initializer=initialize, initargs=(str(profile),)
-    ) as pool:
-
-        def decisions(solver):
-            return list(pool.map(decide, [(r, False, solver) for r in pairs]))
-
-        decision = decisions("cadical195")
-        require(decisions("g4"), decision, "independent cut decisions")
-    exact = [r for r, ok in zip(pairs, decision) if ok]
+    log("five: 287 central count pairs; replaying cut refutations")
+    # Every pair without a refutation is kept, so the archive can only remove
+    # pairs that are certified infeasible.
+    refuted, cut_additions = replay_cuts(
+        HERE / "five-cuts.rupcol.xz", set(pairs), profile, jobs
+    )
+    exact = [r for r in pairs if r not in refuted]
     require(len(exact), 22, "central cuts admitting orders")
+    log(f"five: {len(refuted)} cuts refuted with {cut_additions:,} additions; 22 kept")
     center = smaller(exact)
     require(len(center), 26, "central cuts after reducing budgets")
 
+    log("five: building the outer and reverse cut catalogues")
     files = []
     for a, b in ((11, 51), (11, 52), (26, 39), (26, 40)):
         data = cuts(a, b, "positive" if b == 52 else "free")
@@ -123,11 +123,17 @@ def generate_templates(work, jobs):
 
     # Each central case is independent. The alphabet ordering is canonical.
     args = [(str(halves), files, row) for row in center]
+    log(f"five: generating templates from {len(center)} central cuts")
+    progress = Progress("five: central cuts expanded", len(center))
+    found = set()
     with ProcessPoolExecutor(max_workers=jobs) as pool:
-        parts = pool.map(half_case, args)
-        result = sorted({t for part in parts for t in part})
+        for part in pool.map(half_case, args):
+            found.update(part)
+            progress.update()
+    result = sorted(found)
     require(len(result), 922, "five-copy templates")
-    return result
+    log("five: 922 templates generated")
+    return result, len(refuted), cut_additions
 
 
 def encode(rows, regions):

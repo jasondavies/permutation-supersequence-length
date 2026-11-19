@@ -7,6 +7,7 @@ from subprocess import PIPE, Popen, check_output
 from tempfile import TemporaryDirectory
 
 from proofs.shared.certificates import positive_rup, read_records
+from proofs.shared.progress import Progress, log
 from .cases import (
     HERE,
     compile_program,
@@ -57,6 +58,7 @@ def check_archive(name, allowed, program, arguments, group, jobs):
     seen = set()
     checked = 0
     records = read_records(HERE / f"{name}.rupcol.xz")
+    progress = Progress(f"{group}: {name} refutations", len(allowed) if group != "seven" else None)
     with ProcessPoolExecutor(
         jobs, initializer=start_encoder, initargs=(program, arguments, group)
     ) as workers:
@@ -67,6 +69,7 @@ def check_archive(name, allowed, program, arguments, group, jobs):
                     raise ValueError("unexpected or duplicate case")
                 seen.add(key)
             checked += sum(workers.map(verify_record, batch))
+            progress.update(len(batch))
     return seen, checked
 
 
@@ -82,7 +85,7 @@ def replay_six(work, order, jobs):
         raise ValueError("expected 304 distinct frequency profiles")
 
     enum = compile_program(HERE / "profile_templates.cpp", work)
-    checked = 0
+    checked = auxiliary = 0
     for size in (6, 7, 8, 9):
         inputs = sorted(p for p in profiles if len(p) == size)
         data = "".join(" ".join(map(str, p)) + "\n" for p in inputs)
@@ -93,7 +96,8 @@ def replay_six(work, order, jobs):
         )
         require(found, expected, "profile coverage")
         checked += steps
-        print(f"{size} letters: {len(found)} formulas, {steps} additions.", flush=True)
+        auxiliary += len(found)
+        log(f"six: {size}-letter profiles: {len(found)} refutations, {steps:,} additions")
 
     sieve = compile_program(HERE / "six_profiles.cpp", work)
     expected = set(read_table(check_output([sieve, library], text=True)))
@@ -103,19 +107,24 @@ def replay_six(work, order, jobs):
         "six", expected, program, [library, "selected"], "six", jobs
     )
     require(found, expected, "six-copy case coverage")
-    return found, checked + steps
+    return found, checked + steps, auxiliary
 
 
 def replay(branch, jobs):
+    """Replay one ten-letter branch and return its refutation and addition counts."""
+    log(f"{branch}: starting")
+    result = {}
     with TemporaryDirectory() as tmp:
         work = Path(tmp)
         order = compile_program(HERE / "pivot_formula.cpp", work)
         if branch == "five":
-            expected = set(generate_templates(work, jobs))
+            templates, cuts, cut_additions = generate_templates(work, jobs)
+            expected = set(templates)
             found, checked = check_archive(
                 "five", expected, order, ["1023", "9", "selected"], "five", jobs
             )
             require(found, expected, "five-copy case coverage")
+            result = {"cut_refutations": cuts, "cut_additions": cut_additions}
         elif branch == "seven":
             enum = compile_program(HERE / "seven_templates.cpp", work)
             templates = set(read_table(check_output([enum], text=True)))
@@ -132,10 +141,12 @@ def replay(branch, jobs):
             if not all(family & found for family in families):
                 raise ValueError("uncovered seven-copy template")
         elif branch == "six":
-            found, checked = replay_six(work, order, jobs)
+            found, checked, auxiliary = replay_six(work, order, jobs)
+            result = {"auxiliary_refutations": auxiliary}
         else:
             raise ValueError(f"unknown branch {branch}")
-    print(
-        f"{branch} branch verified: {len(found)} final refutations, "
-        f"{checked} clause additions including dependencies."
+    log(
+        f"{branch}: verified {len(found):,} final refutations, "
+        f"{checked:,} ordering-formula additions including dependencies"
     )
+    return {"refutations": len(found), "additions": checked, **result}

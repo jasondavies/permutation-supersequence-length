@@ -6,6 +6,7 @@ import subprocess
 import tempfile
 
 from proofs.shared.certificates import positive_rup, read_records
+from proofs.shared.progress import log
 
 DIRECTORY = Path(__file__).resolve().parent
 ARCHIVE = DIRECTORY / "nine.rupcol.xz"
@@ -145,7 +146,8 @@ def verify_word():
 
 
 def replay():
-    print(f"Length 66, {verify_word()} permutations verified.", flush=True)
+    log("nine: starting")
+    log(f"nine: length-66 witness covers all {verify_word():,} permutations")
     templates = enumerate_templates()
     if len(templates) != 118:
         raise ValueError("expected 118 nine-letter templates")
@@ -159,7 +161,8 @@ def replay():
             raise ValueError("incorrect original clause count")
         positive_rup((clauses[i - 1] for i in ids), claims)
         additions += len(claims)
-    print(f"{len(templates)} templates excluded, {additions} RUP additions checked.")
+    log(f"nine: {len(templates)} templates excluded, {additions:,} RUP additions checked")
+    return {"refutations": len(templates), "additions": additions}
 
 
 if __name__ == "__main__":

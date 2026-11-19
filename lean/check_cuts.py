@@ -1,8 +1,11 @@
-"""Regenerate the 88 four-copy CNF cores and prove each contradiction in Lean."""
+"""Regenerate complementary-cut CNF cores and prove each contradiction in Lean.
+
+The `four` family is the optional four-copy cross-check (88 cuts at budgets
+(31,31)); `five` is the 265 infeasible central five-copy cuts at (26,38).
+"""
 
 import argparse
 from concurrent.futures import ProcessPoolExecutor
-from itertools import count, pairwise
 from pathlib import Path
 import subprocess
 import sys
@@ -12,46 +15,8 @@ HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE.parent))
 from proofs.shared.certificates import read_records
 from proofs.ten.cases import compile_program, read_table
-from proofs.ten.cut_solver import Side, initialize
-
-
-class ClauseList(list):
-    add_clause = list.append
-
-
-def check_chain(clause, roles):
-    """A missing order starts at a first copy and exhausts its last letter."""
-    mask, side, comparisons = roles[-clause[0]]
-    edges = [comparisons[lit] for lit in reversed(clause[1:])]
-    if not edges:
-        raise ValueError("empty failure chain")
-    first, last = edges[0][0], edges[-1][1]
-    letters = [side.letters[first], *(side.letters[v] for _, v in edges)]
-    if len(set(letters)) != len(letters) or any(not (mask >> a & 1) for a in letters):
-        raise ValueError("failure chain does not order a subset of its mask")
-    if first != side.groups[letters[0]][0] or last != side.groups[letters[-1]][-1]:
-        raise ValueError("wrong first or last copy")
-    for (_, before), (after, _) in pairwise(edges):
-        if after != before + 1 or side.letters[before] != side.letters[after]:
-            raise ValueError("successive thresholds must be adjacent copies")
-
-
-def regenerate(case, extra):
-    clauses = ClauseList()
-    fresh = count(1).__next__
-    left = Side(case[:9], clauses, fresh, False)
-    right = Side(case[9:], clauses, fresh, False)
-    for mask in range(512):
-        clauses.append([left.universal[mask], right.universal[511 ^ mask]])
-    roles = {}
-    for side in (left, right):
-        comparisons = {v: (a, b) for (a, b), v in side.order.items()}
-        comparisons.update({-v: (b, a) for (a, b), v in side.order.items()})
-        roles.update({v: (m, side, comparisons) for m, v in enumerate(side.universal)})
-    for clause in extra:
-        check_chain(clause, roles)
-        clauses.append(clause)
-    return clauses
+from proofs.ten.cut_certificates import regenerate
+from proofs.ten.cut_solver import initialize
 
 
 def literal_type(lit):
@@ -66,7 +31,7 @@ def emit_proof(out, case_index, clauses, steps):
     # hN receives one proof that each of its literals is false.
     print("import Std\nset_option linter.unusedVariables false", file=out)
     print("set_option maxRecDepth 100000\nset_option maxHeartbeats 0", file=out)
-    print(f"theorem cut{case_index:02d} (v : Nat → Prop)", file=out)
+    print(f"theorem cut{case_index:03d} (v : Nat → Prop)", file=out)
     for j, c in enumerate(clauses, 1):
         print(f"    (h{j} : {clause_type(c)})", file=out)
     print("    : False := by", file=out)
@@ -125,15 +90,22 @@ def check_one(task):
     if len(clauses) != count_before:
         raise ValueError("regenerated clause count differs")
     core = [clauses[j - 1] for j in ids]
-    path = directory / f"Cut{i:02d}.lean"
+    path = directory / f"Cut{i:03d}.lean"
     with path.open("w") as out:
         emit_proof(out, i, core, claims)
     subprocess.run(["lean", str(path)], cwd=HERE, check=True)
     return len(core), len(claims)
 
 
+FAMILIES = {
+    "four": (("31", "31"), HERE / "four.rupcol.xz", 88),
+    "five": (("26", "38"), HERE.parent / "proofs" / "ten" / "five-cuts.rupcol.xz", 265),
+}
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("family", choices=sorted(FAMILIES))
     parser.add_argument("--jobs", type=int, default=4)
     parser.add_argument(
         "--emit", type=Path, help="keep the generated Lean theorems in this directory"
@@ -148,16 +120,16 @@ def main():
         source = HERE.parent / "proofs" / "ten"
         catalog = compile_program(source / "cut_catalog.cpp", work)
         query = compile_program(source / "frequency_query.cpp", work)
+        budgets, archive, refuted = FAMILIES[args.family]
         cases = read_table(
-            subprocess.check_output([catalog, "31", "31", "free"], text=True)
+            subprocess.check_output([catalog, *budgets, "free"], text=True)
         )
-        records = list(read_records(HERE / "four.rupcol.xz"))
-        if (
-            len(cases) != 88
-            or len(set(cases)) != 88
-            or cases != [tuple(r[0]) for r in records]
-        ):
-            raise ValueError("archive differs from the regenerated list of 88 cuts")
+        records = list(read_records(archive))
+        keys = [tuple(r[0]) for r in records]
+        if len(keys) != refuted or len(set(keys)) != refuted or not set(keys) <= set(cases):
+            raise ValueError(f"archive is not a set of {refuted} regenerated cuts")
+        if args.family == "four" and keys != cases:
+            raise ValueError("the four-copy archive must refute every cut")
         with ProcessPoolExecutor(
             args.jobs, initializer=initialize, initargs=(str(query),)
         ) as workers:
