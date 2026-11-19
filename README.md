@@ -41,7 +41,7 @@ Install Lean with [elan](https://github.com/leanprover/elan), then run `lake bui
 
 ### Lean replay of the cut refutations
 
-`python lean/check_cuts.py five --jobs 4` replays the 265 central five-copy cut refutations as Lean theorems. The Lean proof of the four-copy case does not depend on any search, but an earlier computational route also exists: `python verify.py four --jobs 4` excludes the 88 central cuts of a four-copy search with two SAT solvers, and `python lean/check_cuts.py four --jobs 4` replays their refutations in Lean. See the [Lean README](lean/README.md).
+`python lean/check_cuts.py five --jobs 4` replays the 265 central five-copy cut refutations as Lean theorems. The Lean proof of the four-copy case does not depend on any search, but an earlier computational route also exists: `python verify.py four --jobs 4` excludes the 88 central cuts of a four-copy search with two SAT solvers, and `python lean/check_cuts.py four --jobs 4` replays their refutations in Lean. The largest generated Lean proof needs about 5 GiB of memory, so allow 16 GiB with four workers or use `--jobs 2`. See the [Lean README](lean/README.md).
 
 ### Tests
 

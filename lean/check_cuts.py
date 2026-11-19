@@ -47,7 +47,7 @@ def emit_proof(out, case_index, clauses, steps):
             print(indent + "intro " + " ".join(reasons.values()), file=out)
         # Recover the hints by unit propagation. Lean checks the emitted
         # applications independently of the choice of clauses and their order.
-        facts = 0
+        facts = []  # (name, names it uses, Lean line) in derivation order
         while True:
             before = len(reasons)
             for j, premise in enumerate(known, 1):
@@ -58,28 +58,35 @@ def emit_proof(out, case_index, clauses, steps):
                     continue
                 if missing:
                     (lit,) = missing
+                    uses = [reasons[-v] for v in premise if v != lit]
                     args = " ".join(
                         "opposite" if v == lit else reasons[-v] for v in premise
                     )
                     proof = f"(fun opposite => h{j} {args})"
                     if lit > 0:
                         proof = "Classical.byContradiction " + proof
-                    name = f"u{facts}"
-                    print(
-                        indent + f"have {name} : {literal_type(lit)} := {proof}",
-                        file=out,
-                    )
-                    facts += 1
+                    name = f"u{len(facts)}"
+                    line = f"have {name} : {literal_type(lit)} := {proof}"
+                    facts.append((name, uses, line))
                     reasons[lit] = name
                 else:
-                    args = " ".join(reasons[-v] for v in premise)
-                    print(indent + f"exact h{j} {args}", file=out)
+                    uses = [reasons[-v] for v in premise]
+                    conflict = f"exact h{j} {' '.join(uses)}"
                     break
             else:
                 if len(reasons) == before:
                     raise ValueError("claimed clause failed unit propagation")
                 continue
             break
+        # Emit only the facts on which the conflict depends.
+        needed = set(uses)
+        for name, used, _ in reversed(facts):
+            if name in needed:
+                needed.update(used)
+        for name, _, line in facts:
+            if name in needed:
+                print(indent + line, file=out)
+        print(indent + conflict, file=out)
         known.append(claim)
 
 
