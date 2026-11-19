@@ -6,13 +6,13 @@ A word is *universal* if it contains every permutation of its alphabet as a subs
 01234567890123456780293451670823451960782134506978231405678213904567823109456782301
 ```
 
-A length-83 construction was already known ([Zălinescu, 2011](https://doi.org/10.1016/j.ipl.2011.03.018)). The new result is the matching lower bound: no word of length 82 is universal. Appending letters preserves universality, so no shorter word is universal either. This settles the tenth term of [OEIS A062714](https://oeis.org/A062714).
+A length-83 construction was already known ([Zălinescu, 2011](https://doi.org/10.1016/j.ipl.2011.03.018)). The new result is the matching lower bound: no word of length 82 is universal. Appending letters preserves universality, so no shorter word is universal either. This settles the tenth term of [OEIS A062714](https://oeis.org/A062714). The value 83 has been submitted to the OEIS and is awaiting approval.
 
 The proof takes Tan’s theorem f(8) = 52 as an input ([arXiv:2501.11386](https://arxiv.org/abs/2501.11386)). It re-verifies the nine-symbol value f(9) = 66, previously computed by Vitaliy Garnashevich.
 
 ## The proof
 
-- **Paper:** [PDF](paper/permutation-supersequence-length.pdf), with its [LaTeX source](paper/permutation-supersequence-length.tex).
+- **Paper:** on Hexagon as [2611.00630v1](https://hexagonmath.org/2611.00630v1). The repository copy is a [PDF](paper/permutation-supersequence-length.pdf), with its [LaTeX source](paper/permutation-supersequence-length.tex).
 - **Analytic reduction:** a counting argument shows that a least frequent symbol in a universal word of length 82 occurs five, six or seven times. The [Lean development](lean/README.md) checks this reduction.
 - **Computational cases:** for five, six and seven copies, enumerators generate every remaining case. Then 3,567 refutations exclude them all, and each of their 11,918,778 clause additions is checked by unit propagation. No exclusion depends on a SAT solver's answer; the solvers only produced the certificates. The 265 refutations of infeasible central five-copy cuts are also checked in Lean. See the [ten-letter proof](proofs/ten/proof.md), the [nine-letter proof](proofs/nine/proof.md) and the [certificate format](proofs/FORMAT.md).
 
