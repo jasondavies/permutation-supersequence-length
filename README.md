@@ -6,7 +6,7 @@ A word is *universal* if it contains every permutation of its alphabet as a subs
 01234567890123456780293451670823451960782134506978231405678213904567823109456782301
 ```
 
-A length-83 construction was already known ([Zălinescu, 2011](https://doi.org/10.1016/j.ipl.2011.03.018)). The new result is the matching lower bound: no word of length 82 is universal. Appending letters preserves universality, so no shorter word is universal either. This settles the tenth term of [OEIS A062714](https://oeis.org/A062714). The value 83 has been submitted to the OEIS and is awaiting approval.
+A length-83 construction was already known ([Zălinescu, 2011](https://doi.org/10.1016/j.ipl.2011.03.018)). The new result is the matching lower bound: no word of length 82 is universal. Appending letters preserves universality, so no shorter word is universal either. This settles the tenth term of [OEIS A062714](https://oeis.org/A062714).
 
 The proof takes Tan’s theorem f(8) = 52 as an input ([arXiv:2501.11386](https://arxiv.org/abs/2501.11386)). It re-verifies the nine-symbol value f(9) = 66, previously computed by Vitaliy Garnashevich.
 
