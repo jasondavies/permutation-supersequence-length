@@ -23,7 +23,9 @@ def environment():
     compiler = command_output("c++", "--version")
     return {
         "commit": command_output("git", "rev-parse", "HEAD"),
-        "uncommitted_changes": bool(command_output("git", "status", "--porcelain")),
+        "uncommitted_changes": bool(
+            command_output("git", "status", "--porcelain", "--untracked-files=no")
+        ),
         "python": sys.version.split()[0],
         "platform": platform.platform(),
         "compiler": compiler.splitlines()[0] if compiler else None,
@@ -52,6 +54,8 @@ def main():
     if args.jobs < 1:
         parser.error("--jobs must be positive")
 
+    # Record the environment before the run writes any output files.
+    setup = environment()
     results = {}
     if args.branch in ("all", "nine"):
         results["nine"] = check_nine.replay()
@@ -69,7 +73,7 @@ def main():
         "branch": args.branch,
         "jobs": args.jobs,
         "elapsed": elapsed(),
-        "environment": environment(),
+        "environment": setup,
         "results": results,
     }
     print(json.dumps(summary, indent=2))
